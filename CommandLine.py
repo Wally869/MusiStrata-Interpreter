@@ -61,8 +61,8 @@ class StateMachine(object):
     def PlaySong(self):
         self.StopSong()
         if (self.mSong is not None):
-            MidoConverter.ConvertSong(self.mSong, "temp2.mid")
-            pygame.mixer.music.load("temp2.mid")
+            MidoConverter.ConvertSong(self.mSong, "temp.mid")
+            pygame.mixer.music.load("temp.mid")
             pygame.mixer.music.play()
         else:
             print("No generated song found. Ensure you called generateSong before playSong")
