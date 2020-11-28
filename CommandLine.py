@@ -11,7 +11,7 @@ state = StateMachine()
 # input is pruned of command and following whitespace, except when defaulting
 class MusiStrataCLI(Cmd):
     prompt = "musi>"
-    intro = "Welcome to MusiStrata CLI V{}. Type help for a list of available commands.".format(VERSION)
+    intro = "\nWelcome to MusiStrata CLI V{}. Type help for a list of available commands.".format(VERSION)
     def do_clear(self, inp):
         commands = inp.split(" ")
         if commands[0] == "song":
@@ -31,16 +31,22 @@ class MusiStrataCLI(Cmd):
         else: 
             print("Unknown command. Can clear song, track, or track [idtrack]")
 
+    def do_addTrack(self, inp):
+        state.AddTrack()
+    
+    def do_delTrack(self, inp):
+        print("Deleting Track.")
+        state.DelTrack()
+        print("Current: Track ID {} - {}".format(state.mCurrentTrackID, state.GetCurrentTrackData()))
+
     def do_play(self, inp):
         inp = inp.split(" ")
         if inp[0] == "song":
             print("Playing Song")
             state.PlaySong()
-        elif inp[0] == "track":
-            if len(inp) == 1:
-                print("Playing Current Track")
-            else:
-                print("Playing track {}".format(inp[1]))
+        else:  # inp[0] == "track":
+            print("Playing Current Track")
+            state.PlayCurrentTrack()
 
     def do_stop(self, inp):
         state.StopSong()
@@ -49,34 +55,36 @@ class MusiStrataCLI(Cmd):
         print("Exiting")
         return True
  
-    def do_add(self, inp):
-        inp = inp.split(" ")
-        print("Adding '{}'".format(inp))
+    def do_getListTracks(self, inp):
+        print(state.mTracksData)
 
     def do_selectTrack(self, inp):
         print("switching to track {} - {}".format(inp, state.mTracksData[int(inp)].Name))
-        state.mCurrentTrackID = int(inp)
+        state.mCurrentTrackID = int(inp)    
 
-    def do_setTrackModel(self, inp):
-        print(inp)
+    def do_setName(self, inp):
+        state.GetCurrentTrackData().Name
+    
+    def do_getName(self, inp):
+        print(state.GetCurrentTrackData().Name)
 
-    def do_setTrackName(self, inp):
-        print(inp)
-
-    def do_setTrackInstrument(self, inp):
+    def do_setInstrument(self, inp):
         state.GetCurrentTrackData().Instrument = inp
+    
+    def do_getInstrument(self, inp):
+        print(state.GetCurrentTrackData().Instrument)    
 
-    def do_getTrackMelodicModel(self, inp):
+    def do_setMelodicModel(self, inp):
+        state.GetCurrentTrackData().MelodicModel = inp
+
+    def do_getMelodicModel(self, inp):
         print(state.GetCurrentTrackData().MelodicModel)
 
-    def do_getTrackRhythmicModel(self, inp):
-        print(state.GetCurrentTrackData().RhythmicModel)
-
-    def do_setModelRhythm(self, inp):
+    def do_setRhythmicModel(self, inp):
         state.GetCurrentTrackData().RhythmicModel = inp
 
-    def do_setModelMelodic(self, inp):
-        state.GetCurrentTrackData().MelodicModel = inp
+    def do_getRhythmicModel(self, inp):
+        print(state.GetCurrentTrackData().RhythmicModel)
 
     def do_getListInstruments(self, inp):
         print("Allowed Instruments:")
@@ -86,5 +94,5 @@ class MusiStrataCLI(Cmd):
         state.GenerateSong()
 
     def default(self, inp):
-        print(inp)
+        print("Unknown Command: {}".format(inp))
 

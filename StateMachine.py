@@ -15,7 +15,7 @@ pygame.mixer.init(freq, bitsize, channels, buffer)
 
 @dataclass
 class SongData:
-    Temp: int = 80
+    Tempo: int = 80
 
 @dataclass
 class TrackData:
@@ -31,7 +31,20 @@ class StateMachine(object):
         self.mCurrentTrackID = 0
         self.mSong = None
         #self.mSong.Tracks = [Track()]
+        self.mSongData = SongData()
         self.mTracksData = [TrackData()]
+    def AddTrack(self):
+        self.mTracksData.append(TrackData())
+    def DelTrack(self):
+        newTracks = []
+        for i in range(len(self.mTracksData)):
+            if i != self.mCurrentTrackID:
+                newTracks.append(self.mTracksData[i])
+        if len(newTracks) == 0:
+            newTracks.append(TrackData())
+        self.mTracksData = newTracks
+        while self.mCurrentTrackID >= len(self.mTracksData):
+            self.mCurrentTrackID -= 1
     def ClearSong(self):
         self.mSong = None
         #self.mSong.Tracks = [Track()]
@@ -45,13 +58,24 @@ class StateMachine(object):
     def ClearAllTrackData(self):
         self.mTracksData = [TrackData()]
         self.mCurrentTrackID = 0
+    def GenerateCurrentTrack(self):
+        s = Song(Tempo=self.mSongData.Tempo, Tracks=[self.mTracksData[self.mCurrentTrackID]])
+        MidoConverter.ConvertSong(s, "temp.mid")
+    def PlayCurrentTrack(self):
+        self.StopSong()
+        self.GenerateCurrentTrack()
+        pygame.mixer.music.load("temp.mid")
+        pygame.mixer.music.play()
     def GenerateSong(self):
         s = Song()
+        s.Tracks = [Track(Name=td.Name, Instrument=td.Instrument) for td in self.mTracksData]
+        """
         t = Track()
         b = Bar()
         b.SoundEvents = [SoundEvent(i, 1.0, Note("A", 5)) for i in range(4)]
         t.append(b)
         s.Tracks = [t]
+        """
         self.mSong = s
     def PlaySong(self):
         self.StopSong()
